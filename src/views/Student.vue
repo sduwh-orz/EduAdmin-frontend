@@ -39,7 +39,7 @@
               <el-menu-item index="3">
                 <el-icon><List/></el-icon>评教
               </el-menu-item>
-              <el-menu-item index="4">
+              <el-menu-item index="4" @click="showGradeTable">
                 <el-icon><List/></el-icon>成绩单查看
               </el-menu-item>
               <el-menu-item index="5">
@@ -52,9 +52,10 @@
           <el-row>
             <el-col :span="1"></el-col>
             <el-col :span="22">
-              <!----------------------------------------------------------------------------------------------------->
               <!--------------------------------------------- 课程表查看 ---------------------------------------------->
-              <!----------------------------------------------------------------------------------------------------->
+              <br v-if="tmpIsSelected === true">
+              <h2 v-if="tmpIsSelected === true">本学期课程表</h2>
+              <br v-if="tmpIsSelected === true">
               <el-table
                 v-if="tmpIsSelected === true"
                 stripe
@@ -64,14 +65,12 @@
               >
                 <el-table-column prop="timeRange" label="" header-align="center"></el-table-column>
                 <el-table-column prop="Mon" label="星期一" header-align="center"></el-table-column>
-                <el-table-column prop="Tues" label="星期二" header-align="center"></el-table-column>
+                <el-table-column prop="Tue" label="星期二" header-align="center"></el-table-column>
                 <el-table-column prop="Wed" label="星期三" header-align="center"></el-table-column>
-                <el-table-column prop="Thur" label="星期四" header-align="center"></el-table-column>
+                <el-table-column prop="Thu" label="星期四" header-align="center"></el-table-column>
                 <el-table-column prop="Fri" label="星期五" header-align="center"></el-table-column>
               </el-table>
-              <!----------------------------------------------------------------------------------------------------->
               <!-------------------------------------------- 空闲教室查看 --------------------------------------------->
-              <!----------------------------------------------------------------------------------------------------->
               <br v-if="emptyClassroomTableIsSelected === true">
               <div
                 style="display: flex; justify-content: space-between; align-items: center"
@@ -191,9 +190,34 @@
                   </template>
                 </el-table-column>
               </el-table>
-              <!---------------------------------------------------------------------------------------------------->
-              <!----------------------------------------------- 评教 ------------------------------------------------>
-              <!---------------------------------------------------------------------------------------------------->
+              <!----------------------------------------------- 成绩查询 ------------------------------------------------>
+              <br v-if="showGradeTableIsSelected === true">
+              <h2 v-if="showGradeTableIsSelected === true">教室申请</h2>
+              <br v-if="showGradeTableIsSelected === true">
+              <el-table
+                v-if="showGradeTableIsSelected === true"
+                stripe
+                border
+                :cell-style="{'text-align': 'center'}"
+                :data="GradeTable.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
+              >
+                <el-table-column prop="courseId" label="课程编号" header-align="center"></el-table-column>
+                <el-table-column prop="score" label="分数" header-align="center"></el-table-column>
+              </el-table>
+              <el-config-provider :locale="locale">
+                <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page="currentPage"
+                  :page-sizes="[5, 10]"
+                  :page-size="pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="GradeTable.length"
+                  background
+                  v-if="showGradeTableIsSelected === true"
+                ></el-pagination>
+              </el-config-provider>
+              <!----------------------------------------------- 选课 ------------------------------------------------>
             </el-col>
             <el-col :span="1"></el-col>
           </el-row>
@@ -206,9 +230,10 @@
 <script>
 import { markRaw, reactive } from 'vue'
 import { List, CircleCheckFilled, CircleCloseFilled } from '@element-plus/icons-vue'
-import { logout } from '@/https/api'
+import { getByWhereAndDay, getStudentCourseList, getStudentScore, logout } from '@/https/api'
 import router from '@/router'
 import { ElMessage } from 'element-plus'
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 
 export default {
   name: 'Student',
@@ -220,44 +245,50 @@ export default {
       CircleCloseFilled: markRaw(CircleCloseFilled),
       courseList: reactive([
         {
-          timeRange: '8:00 - 10:00',
+          timeRange: '8:00-10:00',
           Mon: '',
-          Tues: '123' + '\n' + '软件工程' + '\n' + '王',
-          Wed: '456' + '\n' + '计组' + '\n' + '金',
-          Thur: '123' + '\n' + '软件工程' + '\n' + '王',
-          Fri: '456' + '\n' + '计组' + '\n' + '金'
-        },
-        {
-          timeRange: '10:00 - 12:00',
-          Mon: '',
-          Tues: '234' + '\n' + '高性能' + '\n' + '贺',
+          Tue: '',
           Wed: '',
-          Thur: '',
+          Thu: '',
           Fri: ''
         },
         {
-          timeRange: '14:30 - 16:20',
+          timeRange: '10:00-12:00',
           Mon: '',
-          Tues: '567' + '\n' + '体育' + '\n' + '李',
+          Tue: '',
           Wed: '',
-          Thur: '',
+          Thu: '',
           Fri: ''
         },
         {
-          timeRange: '16:40 - 18:30',
-          Mon: '789' + '\n' + '习思想' + '\n' + '冯',
-          Tues: '',
-          Wed: '789' + '\n' + '习思想' + '\n' + '冯',
-          Thur: '',
+          timeRange: '14:30-16:20',
+          Mon: '',
+          Tue: '',
+          Wed: '',
+          Thu: '',
+          Fri: ''
+        },
+        {
+          timeRange: '16:40-18:30',
+          Mon: '',
+          Tue: '',
+          Wed: '',
+          Thu: '',
           Fri: ''
         }
       ]),
       courseTable: reactive([]),
       emptyClassroomTable: reactive([]),
+      GradeTable: reactive([]),
       tmpIsSelected: false,
       emptyClassroomTableIsSelected: false,
       tmpIsClicked: 0,
       emptyClassroomIsClicked: 0,
+      showGradeTableIsSelected: false,
+      showGradeTableIsClicked: 0,
+      currentPage: 1,
+      pageSize: 10,
+      locale: zhCn,
       userInfo: reactive({
         userName: '',
         userType: ''
@@ -282,36 +313,17 @@ export default {
           label: '商学院'
         }
       ],
-      emptyClassroomList: reactive([
-        {
-          week: 'Mon',
-          classroomName: '电子楼 101',
-          morningFirst: 'danger',
-          morningSecond: 'danger',
-          afternoonFirst: 'success',
-          afternoonSecond: 'success'
-        },
-        {
-          week: 'Tue',
-          classroomName: '电子楼 102',
-          morningFirst: 'success',
-          morningSecond: 'success',
-          afternoonFirst: 'danger',
-          afternoonSecond: 'danger'
-        },
-        {
-          week: 'Wed',
-          classroomName: '商学院 101',
-          morningFirst: 'success',
-          morningSecond: 'danger',
-          afternoonFirst: 'danger',
-          afternoonSecond: 'success'
-        }
-      ]),
       weekList: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     }
   },
   methods: {
+    handleSizeChange (val) {
+      this.currentPage = 1
+      this.pageSize = val
+    },
+    handleCurrentChange (val) {
+      this.currentPage = val
+    },
     showCourseTable () {
       this.emptyClassroomTable = []
       this.emptyClassroomTableIsSelected = false
@@ -320,13 +332,37 @@ export default {
       this.dateSelection = null
       this.tmpIsSelected = true
       this.tmpIsClicked++
+      this.GradeTable = []
+      this.showGradeTableIsSelected = false
+      this.showGradeTableIsClicked = 0
       if (this.tmpIsClicked === 1) {
-        for (let i = 0; i < this.courseList.length; i++) {
-          this.courseTable.push(this.courseList[i])
-        }
-        console.log(this.courseTable[3])
-        const tmp = '789' + '\n' + '习思想' + '\n' + '冯'
-        this.courseTable[3].Mon = tmp
+        getStudentCourseList().then(res => {
+          console.log(res)
+          const list = res.data
+          for (let i = 0; i < list.length; i++) {
+            const teacherName = list[i].courseTeacher
+            const courseName = list[i].courseName
+            const courseId = list[i].courseId
+            const classroomName = list[i].classroomName
+            const timeList = list[i].freeTime.split(',')
+            const Day = timeList[0]
+            const timeRange = timeList[1]
+            for (let j = 0; j < this.courseList.length; j++) {
+              if (this.courseList[j].timeRange === timeRange) {
+                this.courseList[j][Day] = courseId + '\n' + courseName + '\n' + teacherName + '\n' + classroomName
+              }
+            }
+          }
+          for (let i = 0; i < this.courseList.length; i++) {
+            this.courseTable.push(this.courseList[i])
+          }
+        })
+        // for (let i = 0; i < this.courseList.length; i++) {
+        //   this.courseTable.push(this.courseList[i])
+        // }
+        // console.log(this.courseTable[3])
+        // const tmp = '789' + '\n' + '习思想' + '\n' + '冯'
+        // this.courseTable[3].Mon = tmp
       }
     },
     f () {
@@ -357,14 +393,9 @@ export default {
       this.courseTable = []
       this.emptyClassroomTableIsSelected = true
       this.emptyClassroomIsClicked++
-      if (this.emptyClassroomIsClicked === 1) {
-        for (let i = 0; i < this.emptyClassroomList.length; i++) {
-          this.emptyClassroomTable.push({
-            ...this.emptyClassroomList[i],
-            rowId: i + 1
-          })
-        }
-      }
+      this.GradeTable = []
+      this.showGradeTableIsSelected = false
+      this.showGradeTableIsClicked = 0
     },
     disabledDate (time) {
       // return time.getTime() < Date.now()
@@ -376,20 +407,53 @@ export default {
         ElMessage.error('请先选择教学楼或时间段')
       } else {
         this.emptyClassroomTable = []
-        for (let i = 0, j = 0; i < this.emptyClassroomList.length; i++) {
-          if (
-            this.emptyClassroomList[i].week === this.weekList[this.dateSelection.getDay()] &&
-            this.emptyClassroomList[i].classroomName.split(' ')[0] === this.emptyClassroomSelection
-          ) {
-            this.emptyClassroomTable.push({
-              ...this.emptyClassroomList[i],
-              rowId: j + 1
+        const formData = new FormData()
+        formData.append('classroomName', this.emptyClassroomSelection)
+        formData.append('day', this.weekList[this.dateSelection.getDay()])
+        getByWhereAndDay(formData).then(res => {
+          const list = res.data
+          const tmpList = []
+          for (let i = 0; i < list.length; i += 4) {
+            tmpList.push({
+              week: this.weekList[this.dateSelection.getDay()],
+              classroomName: list[i].classroomName,
+              morningFirst: list[i].freeNow === 1 ? 'success' : 'danger',
+              morningSecond: list[i + 1].freeNow === 1 ? 'success' : 'danger',
+              afternoonFirst: list[i + 2].freeNow === 1 ? 'success' : 'danger',
+              afternoonSecond: list[i + 3].freeNow === 1 ? 'success' : 'danger'
             })
-            j++
           }
-        }
+          for (let i = 0; i < tmpList.length; i++) {
+            this.emptyClassroomTable.push({
+              ...tmpList[i],
+              rowId: i + 1
+            })
+          }
+        })
       }
-    }
+    },
+    showGradeTable () {
+      this.courseTable = []
+      this.emptyClassroomTable = []
+      this.tmpIsSelected = false
+      this.emptyClassroomTableIsSelected = false
+      this.tmpIsClicked = 0
+      this.emptyClassroomIsClicked = 0
+      this.showGradeTableIsSelected = true
+      this.showGradeTableIsClicked++
+      if (this.showGradeTableIsClicked === 1) {
+        getStudentScore().then(res => {
+          console.log(res)
+          const list = res.data
+          for (let i = 0; i < list.length; i++) {
+            this.GradeTable.push({
+              courseId: list[i].courseId,
+              score: list[i].score
+            })
+          }
+        })
+      }
+    },
   },
   mounted () {
     this.f()

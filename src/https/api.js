@@ -161,3 +161,25 @@ export function rejectClassroom (data) {
     data
   })
 }
+
+export function getByWhereAndDay (data) {
+  return request({
+    url: '/classroom/getByWhereAndDay',
+    method: 'post',
+    data
+  })
+}
+
+export function getStudentScore () {
+  return request({
+    url: '/student/score',
+    method: 'get'
+  })
+}
+
+export function getStudentCourseList () {
+  return request({
+    url: '/student/courses',
+    method: 'get'
+  })
+}
