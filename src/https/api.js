@@ -89,3 +89,31 @@ export function getBannedUser (userId) {
     method: 'get'
   })
 }
+
+export function getCourseList () {
+  return request({
+    url: '/course/getCourseList',
+    method: 'get'
+  })
+}
+
+export function getOneCourseList () {
+  return request({
+    url: '/course/getOneCourseList',
+    method: 'get'
+  })
+}
+
+export function arrange () {
+  return request({
+    url: '/finalCourse/arrange',
+    method: 'post'
+  })
+}
+
+export function getFinalCourseList () {
+  return request({
+    url: '/finalCourse/getFinalCourseList',
+    method: 'get'
+  })
+}

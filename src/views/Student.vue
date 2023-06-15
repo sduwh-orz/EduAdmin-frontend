@@ -42,7 +42,7 @@
               <el-menu-item index="4">
                 <el-icon><List/></el-icon>成绩单查看
               </el-menu-item>
-              <el-menu-item index="4">
+              <el-menu-item index="5">
                 <el-icon><List/></el-icon>选课
               </el-menu-item>
             </el-menu>
