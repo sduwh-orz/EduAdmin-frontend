@@ -5,7 +5,7 @@ const devUrl = 'http://localhost:1145'
 
 const service = axios.create({
   baseURL: devUrl,
-  timeout: 10000,
+  timeout: 1000000,
   withCredentials: true
 })
 

@@ -117,3 +117,47 @@ export function getFinalCourseList () {
     method: 'get'
   })
 }
+
+export function getExamApplicationList () {
+  return request({
+    url: '/examapplication/getExamList',
+    method: 'get'
+  })
+}
+
+export function arrangeExam () {
+  return request({
+    url: '/finalExam/arrange',
+    method: 'post'
+  })
+}
+
+export function getFinalExamList () {
+  return request({
+    url: '/finalExam/getFinalExamList',
+    method: 'get'
+  })
+}
+
+export function getClassroomList () {
+  return request({
+    url: '/classroom/listApplication',
+    method: 'get'
+  })
+}
+
+export function acceptClassroom (data) {
+  return request({
+    url: '/classroom/accept',
+    method: 'post',
+    data
+  })
+}
+
+export function rejectClassroom (data) {
+  return request({
+    url: '/classroom/reject',
+    method: 'post',
+    data
+  })
+}
