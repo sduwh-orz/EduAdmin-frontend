@@ -385,6 +385,7 @@ export default {
       }
     },
     showExam () {
+      this.examList = []
       this.currentPage = 1
       this.pageSize = 10
       this.queue = []

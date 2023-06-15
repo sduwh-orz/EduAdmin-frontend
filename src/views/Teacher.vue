@@ -27,7 +27,7 @@
               background-color="#003366"
               active-text-color="#fff"
               text-color="#cccccc"
-              style="height: 700px"
+              style="height: 1200px"
               default-active="1"
             >
               <el-menu-item index="1">
@@ -36,7 +36,7 @@
               <el-menu-item index="2">
                 <el-icon><List/></el-icon>评教信息查看
               </el-menu-item>
-              <el-menu-item index="3">
+              <el-menu-item index="3" @click="courseDialog = true">
                 <el-icon><List/></el-icon>课程信息登记
               </el-menu-item>
               <el-menu-item index="4">
@@ -68,6 +68,44 @@
                 <el-table-column prop="Thur" label="星期四" header-align="center"></el-table-column>
                 <el-table-column prop="Fri" label="星期五" header-align="center"></el-table-column>
               </el-table>
+              <el-dialog
+                v-model="courseDialog"
+                title="课程信息登记"
+                width="500px"
+              >
+                <el-form
+                  :model="courseForm"
+                  :rules="courseRules"
+                  style="margin-top: 20px; text-align: center"
+                >
+                  <el-form-item prop="courseName" style="display: inline-block">
+                    <el-input
+                      v-model="courseForm.courseName"
+                      placeholder="请输入待登记的课程名"
+                      style="width: 400px"
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item prop="courseNum" style="display: inline-block">
+                    <el-input
+                      v-model="courseForm.courseNum"
+                      placeholder="请输入待登记的课程数量"
+                      style="width: 400px"
+                    ></el-input>
+                  </el-form-item>
+                </el-form>
+                <template #footer>
+                  <span class="dialog-footer">
+                    <el-button @click="courseDialog = false">取消</el-button>
+                    <el-button
+                      type="primary"
+                      @click="courseApplication"
+                      :disabled="courseForm.courseName === '' || courseForm.courseNum === ''"
+                    >
+                      确认
+                    </el-button>
+                  </span>
+                </template>
+              </el-dialog>
             </el-col>
             <el-col :span="1"></el-col>
           </el-row>
@@ -80,8 +118,9 @@
 <script>
 import { markRaw, reactive } from 'vue'
 import { List } from '@element-plus/icons-vue'
-import { logout } from '@/https/api'
+import { courseApplication, logout } from '@/https/api'
 import router from '@/router'
+import { ElMessage } from 'element-plus'
 
 export default {
   name: 'Teacher',
@@ -126,7 +165,35 @@ export default {
       userInfo: reactive({
         userName: '',
         userType: ''
-      })
+      }),
+      courseDialog: false,
+      courseNameInput: '',
+      courseNumInput: '',
+      courseForm: {
+        courseName: '',
+        courseNum: ''
+      },
+      courseRules: {
+        courseName: [
+          {
+            required: true,
+            message: '课程名不能为空',
+            trigger: 'blur'
+          }
+        ],
+        courseNum: [
+          {
+            required: true,
+            message: '课程数量不能为空',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^\d{1,}$/,
+            message: '请输入正确的课程数量',
+            trigger: 'blur'
+          }
+        ]
+      }
     }
   },
   methods: {
@@ -154,6 +221,16 @@ export default {
         localStorage.clear()
         sessionStorage.clear()
         router.replace('/')
+      })
+    },
+    courseApplication () {
+      const formData = new FormData()
+      formData.append('courseName', this.courseForm.courseName)
+      formData.append('courseNum', this.courseForm.courseNum)
+      courseApplication(formData).then(res => {
+        console.log(res)
+        ElMessage.success('登记成功')
+        this.courseDialog = false
       })
     }
   },

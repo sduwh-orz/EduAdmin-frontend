@@ -101,7 +101,7 @@
               background-color="#545c64"
               active-text-color="#ffd04b"
               text-color="#fff"
-              style="height: 700px"
+              style="height: 1200px"
               default-active="1-1"
             >
               <el-sub-menu index="1">

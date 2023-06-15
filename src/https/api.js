@@ -90,13 +90,6 @@ export function getBannedUser (userId) {
   })
 }
 
-export function getCourseList () {
-  return request({
-    url: '/course/getCourseList',
-    method: 'get'
-  })
-}
-
 export function getOneCourseList () {
   return request({
     url: '/course/getOneCourseList',
@@ -114,6 +107,58 @@ export function arrange () {
 export function getFinalCourseList () {
   return request({
     url: '/finalCourse/getFinalCourseList',
+    method: 'get'
+  })
+}
+
+export function getAllClassrooms () {
+  return request({
+    url: '/classroom/getAllClassrooms',
+    method: 'get'
+  })
+}
+
+export function getByWhereAndDay (data) {
+  return request({
+    url: '/classroom/getByWhereAndDay',
+    method: 'post',
+    data
+  })
+}
+
+export function courseApplication (data) {
+  return request({
+    url: '/courseApplication/courseApplication',
+    method: 'post',
+    data
+  })
+}
+
+export function getUserName (userId) {
+  return request({
+    url: '/user/getUserName/' + userId,
+    method: 'get'
+  })
+}
+
+export function selectCourse (data) {
+  return request({
+    url: '/student/select_course',
+    method: 'post',
+    data
+  })
+}
+
+export function getCourseSelection () {
+  return request({
+    url: '/student/getCourseSelection',
+    method: 'get'
+  })
+}
+
+export function getCourseList () {
+  return request({
+    url: '/course/getCourseList',
     method: 'get'
   })
 }
@@ -157,14 +202,6 @@ export function acceptClassroom (data) {
 export function rejectClassroom (data) {
   return request({
     url: '/classroom/reject',
-    method: 'post',
-    data
-  })
-}
-
-export function getByWhereAndDay (data) {
-  return request({
-    url: '/classroom/getByWhereAndDay',
     method: 'post',
     data
   })

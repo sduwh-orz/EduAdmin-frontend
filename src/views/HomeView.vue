@@ -27,7 +27,7 @@
               background-color="#003366"
               active-text-color="#fff"
               text-color="#cccccc"
-              style="height: 700px"
+              style="height: 1200px"
               default-active="1"
             >
               <el-menu-item index="1">

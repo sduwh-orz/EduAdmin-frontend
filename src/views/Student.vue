@@ -27,7 +27,7 @@
               background-color="#003366"
               active-text-color="#fff"
               text-color="#cccccc"
-              style="height: 700px"
+              style="height: 1200px"
               default-active="1"
             >
               <el-menu-item index="1" @click="showCourseTable">
@@ -42,7 +42,7 @@
               <el-menu-item index="4" @click="showGradeTable">
                 <el-icon><List/></el-icon>成绩单查看
               </el-menu-item>
-              <el-menu-item index="5">
+              <el-menu-item index="5" @click="showFinalCourseTable">
                 <el-icon><List/></el-icon>选课
               </el-menu-item>
             </el-menu>
@@ -257,6 +257,76 @@
                 ></el-pagination>
               </el-config-provider>
               <!----------------------------------------------- 选课 ------------------------------------------------>
+              <!----------------------------------------------- 选课 ------------------------------------------------>
+              <br v-if="finalCourseIsSelected === true">
+              <h2 v-if="finalCourseIsSelected === true">选课表</h2>
+              <br v-if="finalCourseIsSelected === true">
+              <el-table
+                v-if="finalCourseIsSelected === true"
+                stripe
+                border
+                :cell-style="{'text-align': 'center'}"
+                :data="finalCourseTable.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
+              >
+                <el-table-column prop="rowId" label="" width="50" v-if="false"></el-table-column>
+                <el-table-column prop="courseId" label="课程号" header-align="center"></el-table-column>
+                <el-table-column prop="courseName" label="课程名" header-align="center"></el-table-column>
+                <el-table-column prop="courseTeacher" label="授课教师" header-align="center"></el-table-column>
+                <el-table-column prop="classroomName" label="授课地点" header-align="center"></el-table-column>
+                <el-table-column prop="freeTime" label="授课时间段" header-align="center"></el-table-column>
+                <el-table-column fixed="right" label="操作" header-align="center">
+                  <template #default="scope">
+                    <el-button type="primary" @click="checkIfConflict(finalCourseTable[scope.row.rowId - 1])">选课</el-button>
+                    <el-button type="danger" @click="checkIfSelected(finalCourseTable[scope.row.rowId - 1])">退课</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <br v-if="finalCourseIsSelected === true">
+              <el-button v-if="finalCourseIsSelected === true" type="primary" @click="courseSelectionDialog = true">查看已选课程</el-button>
+              <br v-if="finalCourseIsSelected === true">
+              <el-config-provider :locale="locale">
+                <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page="currentPage"
+                  :page-sizes="[5, 10]"
+                  :page-size="pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="finalCourseTable.length"
+                  background
+                  v-if="finalCourseIsSelected === true"
+                ></el-pagination>
+              </el-config-provider>
+              <el-dialog
+                v-model="courseSelectionDialog"
+                title="目前已选课表"
+              >
+                <h2>选课后将无法再进行操作，请谨慎选择！</h2>
+                <br><br>
+                <el-table
+                  :data="courseSelection"
+                  stripe
+                  border
+                  :cell-style="{'text-align': 'center'}"
+                >
+                  <el-table-column prop="courseId" label="课程号" header-align="center"></el-table-column>
+                  <el-table-column prop="courseName" label="课程名" header-align="center"></el-table-column>
+                  <el-table-column prop="courseTeacher" label="授课教师" header-align="center"></el-table-column>
+                  <el-table-column prop="classroomName" label="授课地点" header-align="center"></el-table-column>
+                  <el-table-column prop="freeTime" label="授课时间段" header-align="center"></el-table-column>
+                </el-table>
+                <template #footer>
+                  <span class="dialog-footer">
+                    <el-button @click="courseSelectionDialog = false">取消</el-button>
+                    <el-button
+                      type="primary"
+                      @click="submitCourseSelection"
+                    >
+                      确认选课
+                    </el-button>
+                  </span>
+                </template>
+              </el-dialog>
             </el-col>
             <el-col :span="1"></el-col>
           </el-row>
@@ -270,11 +340,11 @@
 import { markRaw, reactive } from 'vue'
 import { List, CircleCheckFilled, CircleCloseFilled } from '@element-plus/icons-vue'
 import {
-  getByWhereAndDay,
-  getEvaluateList,
+  getByWhereAndDay, getCourseSelection,
+  getEvaluateList, getFinalCourseList,
   getStudentCourseList,
   getStudentScore,
-  logout,
+  logout, selectCourse,
   setEvaluation
 } from '@/https/api'
 import router from '@/router'
@@ -325,8 +395,6 @@ export default {
       ]),
       courseTable: reactive([]),
       emptyClassroomTable: reactive([]),
-      GradeTable: reactive([]),
-      evaluateTable: reactive([]),
       tmpIsSelected: false,
       emptyClassroomTableIsSelected: false,
       tmpIsClicked: 0,
@@ -335,9 +403,6 @@ export default {
       showGradeTableIsClicked: 0,
       showEvaluateIsSelected: false,
       showEvaluateIsClicked: 0,
-      currentPage: 1,
-      pageSize: 10,
-      locale: zhCn,
       userInfo: reactive({
         userName: '',
         userType: ''
@@ -381,18 +446,25 @@ export default {
           label: '商学院'
         }
       ],
-      weekList: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      weekList: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      finalCourseIsSelected: false,
+      finalCourseIsClicked: 0,
+      finalCourseTable: reactive([]),
+      currentPage: 1,
+      pageSize: 10,
+      locale: zhCn,
+      finalCourseIndexClickedNow: 0,
+      courseSelection: reactive([]),
+      checkCourseIdList: reactive([]),
+      checkTimeList: reactive([]),
+      courseSelectionDialog: false
     }
   },
   methods: {
-    handleSizeChange (val) {
-      this.currentPage = 1
-      this.pageSize = val
-    },
-    handleCurrentChange (val) {
-      this.currentPage = val
-    },
     showCourseTable () {
+      this.finalCourseTable = []
+      this.finalCourseIsSelected = false
+      this.finalCourseIsClicked = 0
       this.emptyClassroomTable = []
       this.emptyClassroomTableIsSelected = false
       this.emptyClassroomIsClicked = 0
@@ -455,6 +527,9 @@ export default {
       this.tmpIsSelected = false
       this.tmpIsClicked = 0
       this.courseTable = []
+      this.finalCourseIsSelected = false
+      this.finalCourseIsClicked = 0
+      this.finalCourseTable = []
       this.emptyClassroomTableIsSelected = true
       this.emptyClassroomIsClicked++
       this.GradeTable = []
@@ -465,7 +540,7 @@ export default {
     },
     disabledDate (time) {
       // return time.getTime() < Date.now()
-      const maxTime = Date.now() - 24 * 60 * 60 * 1000 * 1
+      const maxTime = Date.now() - 24 * 60 * 60 * 1000
       return time.getTime() <= maxTime
     },
     startToSearch () {
@@ -522,6 +597,89 @@ export default {
         })
       }
     },
+    showFinalCourseTable () {
+      getCourseSelection().then(res => {
+        if (res.data !== null) {
+          ElMessage.error('你已选过课，不能再进行操作')
+        } else {
+          this.tmpIsSelected = false
+          this.tmpIsClicked = 0
+          this.courseTable = []
+          this.emptyClassroomTable = []
+          this.emptyClassroomTableIsSelected = false
+          this.emptyClassroomSelection = null
+          this.dateSelection = null
+          this.emptyClassroomIsClicked = 0
+          this.finalCourseIsSelected = true
+          this.finalCourseIsClicked++
+          if (this.finalCourseIsClicked === 1) {
+            getFinalCourseList().then(res => {
+              // console.log(res)
+              const list = res.data
+              for (let i = 0; i < list.length; i++) {
+                const courseId = list[i].courseId
+                const courseName = list[i].courseName
+                const courseTeacher = list[i].courseTeacher
+                const classroomName = list[i].classroomName
+                const tmpFreeTimeList = list[i].freeTime.split(',')
+                let week = '周日'
+                switch (tmpFreeTimeList[0]) {
+                  case 'Mon': week = '周一'; break
+                  case 'Tue': week = '周二'; break
+                  case 'Wed': week = '周三'; break
+                  case 'Thu': week = '周四'; break
+                  case 'Fri': week = '周五'; break
+                  case 'Sat': week = '周六'; break
+                  default: week = '周日'; break
+                }
+                const time = tmpFreeTimeList[1]
+                this.finalCourseTable.push({
+                  rowId: i + 1,
+                  courseId: courseId,
+                  courseName: courseName,
+                  courseTeacher: courseTeacher,
+                  classroomName: classroomName,
+                  freeTime: week + ' ' + time
+                })
+              }
+            })
+          }
+        }
+      })
+    },
+    handleSizeChange (val) {
+      this.currentPage = 1
+      this.pageSize = val
+    },
+    handleCurrentChange (val) {
+      this.currentPage = val
+    },
+    checkIfConflict (data) {
+      let courseIdFlag = 0
+      for (let i = 0; i < this.checkCourseIdList.length; i++) {
+        if (data.courseId === this.checkCourseIdList[i]) {
+          ElMessage.error('已经选择该课程')
+          courseIdFlag = 1
+          break
+        }
+      }
+      if (courseIdFlag === 0) {
+        let timeFlag = 0
+        for (let i = 0; i < this.checkTimeList.length; i++) {
+          if (data.freeTime === this.checkTimeList[i]) {
+            ElMessage.error('该课程与已选课程上课时间冲突')
+            timeFlag = 1
+            break
+          }
+        }
+        if (courseIdFlag === 0 && timeFlag === 0) {
+          this.checkCourseIdList.push(data.courseId)
+          this.checkTimeList.push(data.freeTime)
+          this.courseSelection.push(data)
+          ElMessage.success('选择成功')
+        }
+      }
+    },
     showEvaluate () {
       this.queue = []
       this.courseTable = []
@@ -552,6 +710,29 @@ export default {
         })
       }
     },
+    checkIfSelected (data) {
+      for (let i = 0; i < this.checkCourseIdList.length; i++) {
+        if (data.courseId === this.checkCourseIdList[i]) {
+          this.checkCourseIdList = this.checkCourseIdList.filter(item => item !== data.courseId)
+          this.checkTimeList = this.checkTimeList.filter(item => item !== data.freeTime)
+          this.courseSelection = this.courseSelection.filter(item => item !== data)
+          ElMessage.success('退选成功')
+          return
+        }
+      }
+      ElMessage.error('未选择该课程')
+    },
+    submitCourseSelection () {
+      const formData = new FormData()
+      formData.append('courseIdList', this.checkCourseIdList)
+      selectCourse(formData).then(res => {
+        ElMessage.success('提交成功')
+        this.courseSelectionDialog = false
+        setTimeout(function () {
+          location.reload()
+        }, 500)
+      })
+    },
     acceptEvaluate (e) {
       console.log(e)
       console.log(this.EvaluateSelection[e.Index])
@@ -578,6 +759,7 @@ export default {
   mounted () {
     this.f()
   }
+
 }
 </script>
 
@@ -589,4 +771,5 @@ export default {
   justify-content: center;
   margin-top: 30px;
 }
+
 </style>
