@@ -281,7 +281,7 @@ export default {
       List: markRaw(List),
       courseList: reactive([
         {
-          timeRange: '8:00-10:00',
+          timeRange: '08:00-09:50',
           Mon: '',
           Tue: '', // '123' + '\n' + '软件工程' + '\n' + '王',
           Wed: '', // '456' + '\n' + '计组' + '\n' + '金',
@@ -289,7 +289,7 @@ export default {
           Fri: ''// '456' + '\n' + '计组' + '\n' + '金'
         },
         {
-          timeRange: '10:00-12:00',
+          timeRange: '10:10-12:00',
           Mon: '',
           Tue: '', // '234' + '\n' + '高性能' + '\n' + '贺',
           Wed: '',

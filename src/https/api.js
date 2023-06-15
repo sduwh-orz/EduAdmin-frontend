@@ -165,7 +165,7 @@ export function getCourseList () {
 
 export function getExamApplicationList () {
   return request({
-    url: '/examapplication/getExamList',
+    url: '/examApplication/getExamList',
     method: 'get'
   })
 }

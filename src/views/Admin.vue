@@ -222,7 +222,7 @@
 </template>
 
 <script>
-import { markRaw, reactive, ref } from 'vue'
+import { markRaw, reactive } from 'vue'
 import { List } from '@element-plus/icons-vue'
 import {
   acceptClassroom,
@@ -257,7 +257,7 @@ export default {
       examIsSelected: false,
       examIsClicked: 0,
       examList: reactive([]),
-      classroomQueue: ref([]),
+      classroomQueue: reactive([]),
       classroomQueueIsSelected: false,
       classroomQueueIsClicked: 0,
       finalExamTable: reactive([]),
