@@ -235,3 +235,35 @@ export function setEvaluation (data) {
     data
   })
 }
+
+export function examApplication (data) {
+  return request({
+    url: '/examApplication/examApplication',
+    method: 'post',
+    data
+  })
+}
+
+export function scoreApplication (data) {
+  return request({
+    url: '/score/recordscore',
+    method: 'post',
+    data
+  })
+}
+
+export function classroomAApplication (data) {
+  return request({
+    url: '/classroomapplication/classroomapplication',
+    method: 'post',
+    data
+  })
+}
+
+export function getTeacherCourseList (data) {
+  return request({
+    url: '/finalCourse/viewcourse',
+    method: 'post',
+    data
+  })
+}

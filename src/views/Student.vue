@@ -361,7 +361,7 @@ export default {
       CircleCloseFilled: markRaw(CircleCloseFilled),
       courseList: reactive([
         {
-          timeRange: '8:00-10:00',
+          timeRange: '08:00-09:50',
           Mon: '',
           Tue: '',
           Wed: '',
@@ -369,7 +369,7 @@ export default {
           Fri: ''
         },
         {
-          timeRange: '10:00-12:00',
+          timeRange: '10:10-12:00',
           Mon: '',
           Tue: '',
           Wed: '',
@@ -394,6 +394,7 @@ export default {
         }
       ]),
       courseTable: reactive([]),
+      GradeTable: reactive([]),
       emptyClassroomTable: reactive([]),
       tmpIsSelected: false,
       emptyClassroomTableIsSelected: false,
@@ -403,6 +404,7 @@ export default {
       showGradeTableIsClicked: 0,
       showEvaluateIsSelected: false,
       showEvaluateIsClicked: 0,
+      evaluateTable: reactive([]),
       userInfo: reactive({
         userName: '',
         userType: ''
@@ -477,6 +479,9 @@ export default {
       this.showGradeTableIsClicked = 0
       this.showEvaluateIsSelected = false
       this.showEvaluateIsClicked = 0
+      this.finalCourseTable = []
+      this.finalCourseIsSelected = false
+      this.finalCourseIsClicked = 0
       if (this.tmpIsClicked === 1) {
         getStudentCourseList().then(res => {
           console.log(res)
@@ -537,6 +542,9 @@ export default {
       this.showGradeTableIsClicked = 0
       this.showEvaluateIsSelected = false
       this.showEvaluateIsClicked = 0
+      this.finalCourseTable = []
+      this.finalCourseIsSelected = false
+      this.finalCourseIsClicked = 0
     },
     disabledDate (time) {
       // return time.getTime() < Date.now()
@@ -574,6 +582,7 @@ export default {
       }
     },
     showGradeTable () {
+      this.GradeTable = []
       this.courseTable = []
       this.emptyClassroomTable = []
       this.tmpIsSelected = false
@@ -584,6 +593,9 @@ export default {
       this.showGradeTableIsClicked++
       this.showEvaluateIsSelected = false
       this.showEvaluateIsClicked = 0
+      this.finalCourseTable = []
+      this.finalCourseIsSelected = false
+      this.finalCourseIsClicked = 0
       if (this.showGradeTableIsClicked === 1) {
         getStudentScore().then(res => {
           console.log(res)
@@ -602,6 +614,7 @@ export default {
         if (res.data !== null) {
           ElMessage.error('你已选过课，不能再进行操作')
         } else {
+          this.courseTable = []
           this.tmpIsSelected = false
           this.tmpIsClicked = 0
           this.courseTable = []
@@ -612,6 +625,10 @@ export default {
           this.emptyClassroomIsClicked = 0
           this.finalCourseIsSelected = true
           this.finalCourseIsClicked++
+          this.showEvaluateIsSelected = false
+          this.showEvaluateIsClicked = 0
+          this.showGradeTableIsClicked = 0
+          this.showGradeTableIsSelected = false
           if (this.finalCourseIsClicked === 1) {
             getFinalCourseList().then(res => {
               // console.log(res)
@@ -694,6 +711,8 @@ export default {
       this.showGradeTableIsClicked = 0
       this.showEvaluateIsSelected = true
       this.showEvaluateIsClicked++
+      this.finalCourseIsClicked = 0
+      this.finalCourseIsSelected = false
       if (this.showEvaluateIsClicked === 1) {
         getEvaluateList().then(res => {
           console.log(res.data)
