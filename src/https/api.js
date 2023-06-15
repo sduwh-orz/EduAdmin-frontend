@@ -183,3 +183,18 @@ export function getStudentCourseList () {
     method: 'get'
   })
 }
+
+export function getEvaluateList () {
+  return request({
+    url: '/student/evaluation',
+    method: 'get'
+  })
+}
+
+export function setEvaluation (data) {
+  return request({
+    url: '/student/set_evaluation',
+    method: 'post',
+    data
+  })
+}

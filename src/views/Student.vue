@@ -36,7 +36,7 @@
               <el-menu-item index="2" @click="showEmptyClassroomTable">
                 <el-icon><List/></el-icon>空闲教室查看
               </el-menu-item>
-              <el-menu-item index="3">
+              <el-menu-item index="3" @click="showEvaluate">
                 <el-icon><List/></el-icon>评教
               </el-menu-item>
               <el-menu-item index="4" @click="showGradeTable">
@@ -190,9 +190,48 @@
                   </template>
                 </el-table-column>
               </el-table>
+              <!----------------------------------------------- 评教 ------------------------------------------------>
+              <br v-if="showEvaluateIsSelected === true">
+              <h2 v-if="showEvaluateIsSelected === true">评教</h2>
+              <br v-if="showEvaluateIsSelected === true">
+              <el-table
+                v-if="showEvaluateIsSelected === true"
+                stripe
+                border
+                :cell-style="{'text-align': 'center'}"
+                :data="evaluateTable.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
+              >
+                <el-table-column prop="courseId" label="课程编号" header-align="center"></el-table-column>
+                <el-table-column prop="courseName" label="课程名称" header-align="center"></el-table-column>
+                <el-table-column label="操作" header-align="center">
+                  <template #default="scope1">
+                      <el-select-v2
+                        v-model="EvaluateSelection[scope1.$index]"
+                        :options="optionsForEvaluate"
+                        placeholder="请选择评价等级"
+                        style="width: 200px"
+                        size="large"
+                      ></el-select-v2>
+                    <el-button type="primary" size="default" @click="acceptEvaluate(scope1.row)" style="margin-left: 20px">提交</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-config-provider :locale="locale">
+                <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page="currentPage"
+                  :page-sizes="[5, 10]"
+                  :page-size="pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="evaluateTable.length"
+                  background
+                  v-if="showEvaluateIsSelected === true"
+                ></el-pagination>
+              </el-config-provider>
               <!----------------------------------------------- 成绩查询 ------------------------------------------------>
               <br v-if="showGradeTableIsSelected === true">
-              <h2 v-if="showGradeTableIsSelected === true">教室申请</h2>
+              <h2 v-if="showGradeTableIsSelected === true">成绩查询</h2>
               <br v-if="showGradeTableIsSelected === true">
               <el-table
                 v-if="showGradeTableIsSelected === true"
@@ -230,7 +269,14 @@
 <script>
 import { markRaw, reactive } from 'vue'
 import { List, CircleCheckFilled, CircleCloseFilled } from '@element-plus/icons-vue'
-import { getByWhereAndDay, getStudentCourseList, getStudentScore, logout } from '@/https/api'
+import {
+  getByWhereAndDay,
+  getEvaluateList,
+  getStudentCourseList,
+  getStudentScore,
+  logout,
+  setEvaluation
+} from '@/https/api'
 import router from '@/router'
 import { ElMessage } from 'element-plus'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
@@ -280,12 +326,15 @@ export default {
       courseTable: reactive([]),
       emptyClassroomTable: reactive([]),
       GradeTable: reactive([]),
+      evaluateTable: reactive([]),
       tmpIsSelected: false,
       emptyClassroomTableIsSelected: false,
       tmpIsClicked: 0,
       emptyClassroomIsClicked: 0,
       showGradeTableIsSelected: false,
       showGradeTableIsClicked: 0,
+      showEvaluateIsSelected: false,
+      showEvaluateIsClicked: 0,
       currentPage: 1,
       pageSize: 10,
       locale: zhCn,
@@ -293,6 +342,25 @@ export default {
         userName: '',
         userType: ''
       }),
+      EvaluateSelection: reactive([]),
+      optionsForEvaluate: [
+        {
+          value: '优',
+          label: '优'
+        },
+        {
+          value: '良',
+          label: '良'
+        },
+        {
+          value: '中',
+          label: '中'
+        },
+        {
+          value: '差',
+          label: '差'
+        },
+      ],
       emptyClassroomSelection: null,
       dateSelection: null,
       options: [
@@ -335,6 +403,8 @@ export default {
       this.GradeTable = []
       this.showGradeTableIsSelected = false
       this.showGradeTableIsClicked = 0
+      this.showEvaluateIsSelected = false
+      this.showEvaluateIsClicked = 0
       if (this.tmpIsClicked === 1) {
         getStudentCourseList().then(res => {
           console.log(res)
@@ -357,12 +427,6 @@ export default {
             this.courseTable.push(this.courseList[i])
           }
         })
-        // for (let i = 0; i < this.courseList.length; i++) {
-        //   this.courseTable.push(this.courseList[i])
-        // }
-        // console.log(this.courseTable[3])
-        // const tmp = '789' + '\n' + '习思想' + '\n' + '冯'
-        // this.courseTable[3].Mon = tmp
       }
     },
     f () {
@@ -396,6 +460,8 @@ export default {
       this.GradeTable = []
       this.showGradeTableIsSelected = false
       this.showGradeTableIsClicked = 0
+      this.showEvaluateIsSelected = false
+      this.showEvaluateIsClicked = 0
     },
     disabledDate (time) {
       // return time.getTime() < Date.now()
@@ -441,6 +507,8 @@ export default {
       this.emptyClassroomIsClicked = 0
       this.showGradeTableIsSelected = true
       this.showGradeTableIsClicked++
+      this.showEvaluateIsSelected = false
+      this.showEvaluateIsClicked = 0
       if (this.showGradeTableIsClicked === 1) {
         getStudentScore().then(res => {
           console.log(res)
@@ -454,6 +522,58 @@ export default {
         })
       }
     },
+    showEvaluate () {
+      this.queue = []
+      this.courseTable = []
+      this.emptyClassroomTable = []
+      this.GradeTable = []
+      this.evaluateTable = []
+      this.tmpIsSelected = false
+      this.emptyClassroomTableIsSelected = false
+      this.tmpIsClicked = 0
+      this.emptyClassroomIsClicked = 0
+      this.showGradeTableIsSelected = false
+      this.showGradeTableIsClicked = 0
+      this.showEvaluateIsSelected = true
+      this.showEvaluateIsClicked++
+      if (this.showEvaluateIsClicked === 1) {
+        getEvaluateList().then(res => {
+          console.log(res.data)
+          const list = res.data
+          for (let i = 0; i < list.length; i++) {
+            const courseId = list[i].courseId
+            const courseName = list[i].courseName
+            this.evaluateTable.push({
+              courseId: courseId,
+              courseName: courseName,
+              Index: i
+            })
+          }
+        })
+      }
+    },
+    acceptEvaluate (e) {
+      console.log(e)
+      console.log(this.EvaluateSelection[e.Index])
+      const formData = new FormData()
+      formData.append('courseId', e.courseId)
+      formData.append('score', this.EvaluateSelection[e.Index])
+      setEvaluation(formData).then(res => {
+        if (res.status) {
+          ElMessage({
+            message: '评价成功',
+            type: 'success'
+          })
+          this.evaluateTable.splice(e.Index, 1)
+          this.EvaluateSelection[e.Index] = null
+        } else {
+          ElMessage({
+            message: '评价失败',
+            type: 'error'
+          })
+        }
+      })
+    },
   },
   mounted () {
     this.f()
@@ -464,5 +584,9 @@ export default {
 <style lang="scss" scoped>
 :deep(.el-table .cell) {
   white-space: pre;
+}
+:deep(.el-pagination) {
+  justify-content: center;
+  margin-top: 30px;
 }
 </style>
