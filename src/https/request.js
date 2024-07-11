@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
-const devUrl = 'http://localhost:1145'
+const devUrl = 'http://localhost:7001'
 
 const service = axios.create({
   baseURL: devUrl,
