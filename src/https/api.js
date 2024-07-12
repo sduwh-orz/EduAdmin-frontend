@@ -22,105 +22,37 @@ export function getInfo (userId) {
   })
 }
 
-export function getAllTags () {
-  return request({
-    url: '/tag/getAllTags',
-    method: 'get'
-  })
-}
-
-export function createTag (data) {
-  return request({
-    url: '/tag/create',
-    method: 'post',
-    data
-  })
-}
-
-export function deleteTag (data) {
-  return request({
-    url: '/tag/delete',
-    method: 'post',
-    data
-  })
-}
-
-export function modifyTag (data) {
-  return request({
-    url: '/tag/modify',
-    method: 'post',
-    data
-  })
-}
-
-export function getAdminsAndCheckers () {
-  return request({
-    url: '/user/getAdminsAndCheckers',
-    method: 'get'
-  })
-}
-
-export function grant (data) {
-  return request({
-    url: '/user/grant',
-    method: 'post',
-    data
-  })
-}
-
-export function changeStatus (data) {
-  return request({
-    url: '/user/status',
-    method: 'post',
-    data
-  })
-}
-
-export function getBannedUsers () {
-  return request({
-    url: '/user/getBannedUsers',
-    method: 'get'
-  })
-}
-
-export function getBannedUser (userId) {
-  return request({
-    url: '/user/getBannedUser/' + userId,
-    method: 'get'
-  })
-}
-
 export function getOneCourseList () {
   return request({
-    url: '/course/getOneCourseList',
+    url: '/admin/course/getOneCourseList',
     method: 'get'
   })
 }
 
 export function arrange () {
   return request({
-    url: '/finalCourse/arrange',
+    url: '/admin/finalCourse/arrange',
     method: 'post'
   })
 }
 
 export function getFinalCourseList () {
   return request({
-    url: '/finalCourse/getFinalCourseList',
+    url: '/admin/finalCourse/getFinalCourseList',
     method: 'get'
   })
 }
 
 export function getAllClassrooms () {
   return request({
-    url: '/classroom/getAllClassrooms',
+    url: '/admin/classroom/getAllClassrooms',
     method: 'get'
   })
 }
 
 export function getByWhereAndDay (data) {
   return request({
-    url: '/classroom/getByWhereAndDay',
+    url: '/admin/classroom/getByWhereAndDay',
     method: 'post',
     data
   })
@@ -128,7 +60,7 @@ export function getByWhereAndDay (data) {
 
 export function courseApplication (data) {
   return request({
-    url: '/courseApplication/courseApplication',
+    url: '/teacher/courseApplication/courseApplication',
     method: 'post',
     data
   })
@@ -136,14 +68,14 @@ export function courseApplication (data) {
 
 export function getUserName (userId) {
   return request({
-    url: '/user/getUserName/' + userId,
+    url: '/user/user/getUserName/' + userId,
     method: 'get'
   })
 }
 
 export function selectCourse (data) {
   return request({
-    url: '/student/select_course',
+    url: '/student/student/select_course',
     method: 'post',
     data
   })
@@ -151,49 +83,49 @@ export function selectCourse (data) {
 
 export function getCourseSelection () {
   return request({
-    url: '/student/getCourseSelection',
+    url: '/student/student/getCourseSelection',
     method: 'get'
   })
 }
 
 export function getCourseList () {
   return request({
-    url: '/course/getCourseList',
+    url: '/admin/course/getCourseList',
     method: 'get'
   })
 }
 
 export function getExamApplicationList () {
   return request({
-    url: '/examApplication/getExamList',
+    url: '/admin/examApplication/getExamList',
     method: 'get'
   })
 }
 
 export function arrangeExam () {
   return request({
-    url: '/finalExam/arrange',
+    url: '/admin/finalExam/arrange',
     method: 'post'
   })
 }
 
 export function getFinalExamList () {
   return request({
-    url: '/finalExam/getFinalExamList',
+    url: '/admin/finalExam/getFinalExamList',
     method: 'get'
   })
 }
 
 export function getClassroomList () {
   return request({
-    url: '/classroom/listApplication',
+    url: '/admin/classroom/listApplication',
     method: 'get'
   })
 }
 
 export function acceptClassroom (data) {
   return request({
-    url: '/classroom/accept',
+    url: '/admin/classroom/accept',
     method: 'post',
     data
   })
@@ -201,7 +133,7 @@ export function acceptClassroom (data) {
 
 export function rejectClassroom (data) {
   return request({
-    url: '/classroom/reject',
+    url: '/admin/classroom/reject',
     method: 'post',
     data
   })
@@ -209,28 +141,28 @@ export function rejectClassroom (data) {
 
 export function getStudentScore () {
   return request({
-    url: '/student/score',
+    url: '/student/student/score',
     method: 'get'
   })
 }
 
 export function getStudentCourseList () {
   return request({
-    url: '/student/courses',
+    url: '/student/student/courses',
     method: 'get'
   })
 }
 
 export function getEvaluateList () {
   return request({
-    url: '/student/evaluation',
+    url: '/student/student/evaluation',
     method: 'get'
   })
 }
 
 export function setEvaluation (data) {
   return request({
-    url: '/student/set_evaluation',
+    url: '/student/student/set_evaluation',
     method: 'post',
     data
   })
@@ -238,7 +170,7 @@ export function setEvaluation (data) {
 
 export function examApplication (data) {
   return request({
-    url: '/examApplication/examApplication',
+    url: '/teacher/examApplication/examApplication',
     method: 'post',
     data
   })
@@ -246,7 +178,7 @@ export function examApplication (data) {
 
 export function scoreApplication (data) {
   return request({
-    url: '/score/recordscore',
+    url: '/teacher/score/recordscore',
     method: 'post',
     data
   })
@@ -254,7 +186,7 @@ export function scoreApplication (data) {
 
 export function classroomAApplication (data) {
   return request({
-    url: '/classroomapplication/classroomapplication',
+    url: '/teacher/classroomapplication/classroomapplication',
     method: 'post',
     data
   })
@@ -262,7 +194,7 @@ export function classroomAApplication (data) {
 
 export function getTeacherCourseList (data) {
   return request({
-    url: '/finalCourse/viewcourse',
+    url: '/teacher/finalCourse/viewcourse',
     method: 'post',
     data
   })
