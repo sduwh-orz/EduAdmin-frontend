@@ -324,8 +324,10 @@ export default {
       this.currentPage = val
     },
     arrange () {
+      // console.log(123456)
       arrange().then(res => {
         console.log(res)
+        location.reload()
       })
     },
     arrangeExam () {
@@ -424,6 +426,7 @@ export default {
       this.queueIsSelected = false
       this.queueIsClicked = 0
       this.finalCourseTable = []
+      this.classroomQueue = []
       this.finalCourseIsSelected = false
       this.finalCourseIsClicked = 0
       this.examIsSelected = false
@@ -470,6 +473,7 @@ export default {
         this.queueIsSelected = false
         this.queueIsClicked = 0
         this.finalCourseTable = []
+        this.finalExamTable = []
         this.finalCourseIsSelected = false
         this.finalCourseIsClicked = 0
         this.examIsSelected = false
