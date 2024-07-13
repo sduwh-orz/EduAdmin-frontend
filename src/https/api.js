@@ -170,7 +170,7 @@ export function setEvaluation (data) {
 
 export function examApplication (data) {
   return request({
-    url: '/teacher/examApplication/examApplication',
+    url: '/admin/examApplication/examApplication',
     method: 'post',
     data
   })
@@ -194,7 +194,7 @@ export function classroomAApplication (data) {
 
 export function getTeacherCourseList (data) {
   return request({
-    url: '/teacher/finalCourse/viewcourse',
+    url: '/admin/finalCourse/viewcourse',
     method: 'post',
     data
   })
