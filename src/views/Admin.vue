@@ -533,7 +533,11 @@ export default {
         case '周六': week = 'Sat'; break
         default: week = 'Sun'; break
       }
-      const time = timeList[1]
+      let i = 1
+      while (i < timeList.length && timeList[i] === '') {
+        i += 1
+      }
+      const time = timeList[i]
       const formData = new FormData()
       formData.append('userId', userId)
       formData.append('classroomId', classroomId)
@@ -563,7 +567,11 @@ export default {
         case '周六': week = 'Sat'; break
         default: week = 'Sun'; break
       }
-      const time = timeList[1]
+      let i = 1
+      while (i < timeList.length && timeList[i] === '') {
+        i += 1
+      }
+      const time = timeList[i]
       const formData = new FormData()
       formData.append('userId', userId)
       formData.append('classroomId', classroomId)
